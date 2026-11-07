@@ -1,0 +1,32 @@
+import {test,expect} from '@playwright/test';
+test('abre ficha, avança com verificação e preserva histórico após recarga',async({page})=>{
+ await page.goto('/');
+ await page.getByRole('button',{name:'Abrir ficha'}).click();
+ await page.getByLabel('Objeto').fill('Toca-discos');
+ await page.getByLabel('Relato fictício').fill('O prato oscila durante a reprodução.');
+ await page.getByRole('button',{name:'Criar ficha'}).click();
+ await expect(page.getByRole('heading',{name:'Toca-discos'})).toBeVisible();
+ await page.getByRole('button',{name:'Enviar ao diagnóstico'}).click();
+ const start=page.getByRole('button',{name:'Iniciar reparo'});
+ await expect(start).toBeDisabled();
+ await page.getByLabel('A verificação foi concluída').check();
+ await start.click();
+ await page.getByRole('button',{name:'Liberar retirada'}).click();
+ await expect(page.getByText('Ficha encerrada.')).toBeVisible();
+ await page.reload();
+ await page.getByRole('button',{name:/Toca-discos/}).click();
+ await expect(page.getByText('Verificação concluída',{exact:true})).toBeVisible();
+ await expect(page.getByText('Ficha encerrada.')).toBeVisible();
+});
+test('filtro e teclado funcionam em tela móvel',async({page})=>{
+ await page.setViewportSize({width:360,height:800});
+ await page.emulateMedia({reducedMotion:'reduce'});
+ await page.goto('/');
+ await page.getByRole('button',{name:/Rádio de pilha/}).waitFor();
+ await page.keyboard.press('Tab');
+ await expect(page.getByRole('link',{name:'Ir para a fila'})).toBeFocused();
+ await page.getByRole('navigation',{name:'Filtrar por etapa'}).getByRole('button',{name:/Retirada/}).press('Enter');
+ await expect(page.getByRole('heading',{name:'Relógio de parede'})).toBeVisible();
+ await expect(page.getByRole('button',{name:/Rádio de pilha/})).toHaveCount(0);
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBe(360);
+});

@@ -1,0 +1,1 @@
+{"name":"bancada-12","private":true,"version":"1.0.0","type":"module","scripts":{"build":"node scripts/build.mjs","start":"node scripts/local.mjs","test":"node --test tests/api.test.mjs","test:browser":"playwright test"},"dependencies":{"svelte":"^5.57.3","valibot":"^1.5.0"},"devDependencies":{"@playwright/test":"^1.65.0","esbuild":"^0.28.2"}}
